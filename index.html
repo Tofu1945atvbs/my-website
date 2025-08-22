@@ -564,7 +564,7 @@
         }
 
         .skill-years::before {
-            content: '使用年数';
+            content: '経験年数';
             display: block;
             font-size: 0.9rem;
             color: var(--text-secondary);
@@ -860,11 +860,96 @@
                 opacity: 0;
             }
         }
+
+        /* ▼▼▼【ここから追加】オープニングアニメーション用のCSS ▼▼▼ */
+        #opening-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            transition: opacity 0.8s ease-out;
+        }
+
+        .shoji-door {
+            position: absolute;
+            top: 0;
+            width: 50.5%; /* 隙間ができないように少しだけ大きくする */
+            height: 100%;
+            background-color: #f0e6d2; /* 障子紙の色 */
+            /* 障子の格子模様をCSSで表現 */
+            background-image:
+                linear-gradient(rgba(0,0,0,0.2) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(0,0,0,0.2) 2px, transparent 2px);
+            background-size: 80px 80px;
+            border: 10px solid #5d3a2a; /* 障子の枠の色 */
+            transition: transform 1.2s cubic-bezier(0.86, 0, 0.07, 1);
+            box-sizing: border-box;
+        }
+
+        .shoji-door.left {
+            left: 0;
+        }
+
+        .shoji-door.right {
+            right: 0;
+        }
+
+        /* 障子が開くアニメーション */
+        .shoji-door.left.open {
+            transform: translateX(-100%);
+        }
+
+        .shoji-door.right.open {
+            transform: translateX(100%);
+        }
+
+        #loading-progress {
+            position: absolute;
+            bottom: 20%;
+            width: 60%;
+            max-width: 400px;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            z-index: 10000;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #loading-bar {
+            width: 0%;
+            height: 100%;
+            background: var(--gold-gradient);
+            border-radius: 2px;
+            transition: width 2.5s ease-out;
+        }
+
+        /* アニメーション完了後に非表示にする */
+        #opening-animation.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        /* ▲▲▲【ここまで追加】オープニングアニメーション用のCSS ▲▲▲ */
+
 	</style>
 </head>
 
 <body>
-	<div class="scroll-indicator">
+    <div id="opening-animation">
+        <div class="shoji-door left"></div>
+        <div class="shoji-door right"></div>
+        <div id="loading-progress">
+            <div id="loading-bar"></div>
+        </div>
+    </div>
+    <div class="scroll-indicator">
 		<div class="scroll-progress" id="scrollProgress"></div>
 	</div>
 
@@ -901,7 +986,7 @@
                     <p>趣味でイラストやデザインをしている大江 彩祐花と申します。</p>
 					<p>埼玉県立芸術総合高等学校 映像芸術科卒　<a href="https://geiso-h.spec.ed.jp/f8ae34c0bc88203bf6e1d742d0665870" class="highschool" target="_blank" rel="noopener noreferrer">HP</a></p>
 					<p>アミューズメントメディア総合学院 ゲーム・アニメ・3DCG学科卒　<a href="https://www.amgakuin.co.jp/course/cg-design" class="technicalcollege" target="_blank" rel="noopener noreferrer">HP</a></p>
-                    <p>趣味でキャラクターの一次創作や、既存作品(ゲームなどの)二次創作イラストの制作をしています。</p>
+                    <p>キャラクターの一次創作や、既存作品(ゲームなどの)二次創作イラストの制作をしています。</p>
                     <p>男性キャラ中心に描きます。最近は戦闘立ち絵にチャレンジ中。構図を考えるのに毎回苦労します。</p>
                     <p>OCイラストや二次創作イラスト、<a href="https://ccfolia.com/" class="ccfolia" target="_blank" rel="noopener noreferrer">ccfolia</a>の卓(部屋)デザイン等で活動しています。</p>
                 </div>
@@ -1025,6 +1110,42 @@
 	<script>
         // DOMContentLoadedを待ってからスクリプトを実行
         document.addEventListener('DOMContentLoaded', function() {
+
+            // ▼▼▼【ここから追加】オープニングアニメーション用のJavaScript ▼▼▼
+            const openingAnimation = document.getElementById('opening-animation');
+            const loadingBar = document.getElementById('loading-bar');
+            const loadingProgress = document.getElementById('loading-progress');
+            const shojiDoors = document.querySelectorAll('.shoji-door');
+
+            // 1. ローディングバーをアニメーションさせる
+            setTimeout(() => {
+                loadingBar.style.width = '100%';
+            }, 100); // 0.1秒遅延させて開始
+
+            // 2. ローディングアニメーション完了後の処理
+            const loadingDuration = 2500; // ローディングバーのアニメーション時間（CSSと合わせる）
+            setTimeout(() => {
+                // プログレスバーをフェードアウト
+                loadingProgress.style.opacity = '0';
+
+                // 0.5秒後に障子を開く
+                setTimeout(() => {
+                    shojiDoors.forEach(door => door.classList.add('open'));
+                }, 500);
+
+                // 障子が開いた後にオープニング全体を非表示にする
+                const shojiOpenDuration = 1200; // 障子が開く時間（CSSと合わせる）
+                setTimeout(() => {
+                    openingAnimation.classList.add('hidden');
+                     // アニメーション要素をDOMから削除してメモリを解放（任意）
+                    setTimeout(() => {
+                        openingAnimation.remove();
+                    }, 800); // hiddenのtransitionが終わってから削除
+                }, 500 + shojiOpenDuration);
+
+            }, loadingDuration + 100);
+            // ▲▲▲【ここまで追加】オープニングアニメーション用のJavaScript ▲▲▲
+
             // スムーススクロール
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function (e) {
@@ -1207,5 +1328,4 @@
     </script>
 	
 </body>
-
 </html>
