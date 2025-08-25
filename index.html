@@ -509,25 +509,12 @@
             overflow: hidden;
         }
 
-        .skill-item::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: var(--gold-gradient);
-            border-radius: 15px;
-            z-index: -1;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .skill-item:hover::before {
-            opacity: 1;
-        }
-
         .skill-item:hover {
+        /* グラデーションをボーダーに適用します */
+            border-image-source: var(--gold-gradient);
+            border-image-slice: 1;
+
+        /* 既存のアニメーションは維持します */
             transform: translateY(-8px);
             box-shadow: 0 20px 40px rgba(184, 134, 11, 0.2);
         }
@@ -1329,4 +1316,3 @@
 	
 </body>
 </html>
-
